@@ -1,31 +1,25 @@
 import React, { useEffect, useState } from 'react'
 import Navbar from '../../containers/Navbar'
-import axios from 'axios'
 import './productList.css'
 import swal from '@sweetalert/with-react'
+import { useDispatch, useSelector } from 'react-redux'
+import { DeleteProductID, ProdutList, UpdateProductID } from '../../Redux/Action/CategoryAction'
 
 export default function ProductList() {
-  const [productList, setProductList] = useState([])
   const [id, setId] = useState("")
   const [file, setFile] = useState(null)
   const [productName, setProductName] = useState("")
   const [productPrice, setProductPrice] = useState("")
   const [productCategory, setProductCategory] = useState("")
   const [companyName, setCompanyName] = useState("")
-
-  const getProduct = () => {
-    axios.get('http://localhost:5000/add-product')
-      .then((res) => {
-        setProductList(res.data)
-      })
-  }
+  const dispatch = useDispatch()
+  const productList = useSelector((state) => state.CategoryReducer.productList);
 
   useEffect(() => {
-    getProduct()
+    dispatch(ProdutList())
   }, [])
 
   const UpdateProduct = (data) => {
-    debugger
     setId(data._id)
     setProductName(data.name)
     setProductPrice(data.price)
@@ -43,31 +37,21 @@ export default function ProductList() {
     })
       .then((willDelete) => {
         if (willDelete) {
-          axios.delete(`http://localhost:5000/add-product/${id}`).then((res) => {
-            swal({
-              text: "Document removed successfully!",
-              icon: "success",
-              buttons: false,
-              timer: 2000,
-            });
-            getProduct()
-          })
+          dispatch(DeleteProductID(id))
         }
       })
   }
   const updateData = () => {
-    const payload={
+    const payload = {
       fileDetails: "dsf",
-      name:productName,
-      price:productPrice,
-      category:productCategory,
-      userId:JSON.parse(localStorage.getItem('auth')).id,
-      company:companyName,
+      name: productName,
+      price: productPrice,
+      category: productCategory,
+      userId: JSON.parse(localStorage.getItem('auth')).id,
+      company: companyName,
     }
-    axios.put(`http://localhost:5000/add-product/${id}`, payload)
-      .then((res) => {
-        getProduct()
-      })
+    dispatch(UpdateProductID(id , payload))
+   
   }
   return (
     <div>
@@ -85,7 +69,7 @@ export default function ProductList() {
           </thead>
           <tbody>
             {
-              productList.map((product, index) => {
+              productList.length > 0 && productList.map((product, index) => {
                 return (
                   <tr>
                     <td>{index + 1}</td>

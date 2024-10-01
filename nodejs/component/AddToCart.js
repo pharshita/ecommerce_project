@@ -61,10 +61,10 @@ module.exports = {
             })
     },
     updateCart: async (req, res) => {
-        console.log(req.body)
         const { id } = req.params;
         const { name, category, userId, price, company, Number } = req.body;
         const getCategoryID = await product.findById(id);
+        console.log(getCategoryID)
         cart.findByIdAndUpdate(id, { name, category, userId, price: getCategoryID.price * Number, company, Number }, { new: true })
             .then((updateProduct) => {
                 if (!updateProduct) {

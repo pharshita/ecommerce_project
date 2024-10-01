@@ -2,8 +2,11 @@ import React, { useState } from 'react'
 import './signup_signin.css'
 import axios from 'axios'
 import { json, useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { signinUser, signupUser } from '../../Redux/Action/loginAction'
 
 export default function Signin() {
+    const dispatch = useDispatch()
     const navigate = useNavigate()
     const [userName, setUserName] = useState("")
     const [email, setEmail] = useState("")
@@ -13,25 +16,13 @@ export default function Signin() {
     const registerHandle = (event) => {
         event.preventDefault()
         const obj = { 'username': userName, 'email': email, 'password': password }
-        axios.post('http://localhost:5000/user/signup', obj)
-            .then((res) => {
-                localStorage.setItem('auth', JSON.stringify(res.data))
-                navigate('/')
-            }).catch((error) => {
-                console.log(error)
-            })
+        dispatch(signupUser(obj , navigate))
     }
 
     const loginHandle = (event) => {
         event.preventDefault()
         const obj = { 'email': loginEmail, 'password': loginPassword }
-        axios.post('http://localhost:5000/user/signin', obj)
-            .then((res) => {
-                localStorage.setItem('auth', JSON.stringify(res.data))
-                window.location.href = "/"
-            }).catch((error) => {
-                console.log(error)
-            })
+        dispatch(signinUser(obj,navigate))
     }
 
     return (

@@ -3,47 +3,30 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import axios from 'axios';
 import './Category.css'
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { AddToCart, CategoriesProductList, CategoryList, ProdutList } from '../../Redux/Action/CategoryAction';
 
 function Category() {
     const [selectCategory, setSelectCategory] = React.useState('');
-    const [categories, setCategories] = React.useState([])
-    const [categoriesProduct, setCategoriesProduct] = React.useState([])
-    const [productList, setProductList] = useState([])
     const navigate = useNavigate()
-
+    const dispatch = useDispatch()
+    const categoriesList = useSelector((state) => state.CategoryReducer.categorylist);
+    const productList = useSelector((state) => state.CategoryReducer.productList);
+    const categoriesProduct = useSelector((state) => state.CategoryReducer.productCategoryList);
     useEffect(() => {
-        axios.get("http://localhost:5000/product-category")
-            .then((res) => {
-                setCategories(res.data)
-            })
-        axios.get('http://localhost:5000/add-product')
-            .then((res) => {
-                setProductList(res.data)
-            })
+        dispatch(CategoryList())
+        dispatch(ProdutList())
     }, [])
 
     const handleChange = (event) => {
         setSelectCategory(event.target.value);
-        if (event.target.value == "") {
-            setCategoriesProduct("")
-        }
-        else {
-            axios.get(`http://localhost:5000/product-category/${event.target.value}`)
-                .then((res) => {
-                    setCategoriesProduct(res.data)
-                })
-        }
+        dispatch(CategoriesProductList(event))
     };
 
     const handlecarts = (id) => {
-        axios.post(`http://localhost:5000/cart/${id}`)
-            .then((res) => {
-                console.log("data added")
-                navigate(`/cart`)
-            })
+       dispatch(AddToCart(id,navigate))
     }
     return (
         <div className='container'>
@@ -55,7 +38,7 @@ function Category() {
                     onChange={(event) => handleChange(event)} >
                     <MenuItem value="">default value</MenuItem>
                     {
-                        categories.map((item, index) => (
+                        categoriesList.length>0 && categoriesList.map((item, index) => (
                             <MenuItem key={index} value={item}>{item}</MenuItem>
                         ))
                     }
@@ -63,7 +46,7 @@ function Category() {
             </FormControl>
             <div className='row cardStyle'>
                 {
-                    categoriesProduct.length !== 0
+                    categoriesProduct.length !== 0 && categoriesProduct.length>0
                         ? categoriesProduct.map((product, index) => {
                             return (
                                 <>
@@ -84,7 +67,7 @@ function Category() {
                             )
                         })
                         :
-                        productList.map((product, index) => {
+                        productList.length > 0 && productList.map((product, index) => {
                             return (
                                 <>
                                     <div className='col-sm-2 card'>

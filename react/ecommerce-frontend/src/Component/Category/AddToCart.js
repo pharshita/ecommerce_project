@@ -4,32 +4,21 @@ import { Link, useParams } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeftLong, faCartShopping, faTrashCan, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 import './Category.css'
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteCartID, getCartList, UpdateCartID, UpdateCartIDPlus } from '../../Redux/Action/AddToProductAction';
 
 export default function AddToCart() {
+    const dispatch = useDispatch()
     const { productId } = useParams();
-    const [categoryProduct, setCategoriesProduct] = useState([])
-    const [cart, setCarts] = useState([])
+    const categoryProduct = useSelector((state) => state.AddToProductReducer.AddProductList);
+    const cart = useSelector((state) => state.AddToProductReducer.cartList);
+
     useEffect(() => {
-        if (productId) {
-            axios.get(`http://localhost:5000/product-category/categoryId/${productId}`)
-                .then((res) => {
-                    setCategoriesProduct(res.data)
-                })
-        }
-        getCartApi()
+        dispatch(getCartList())
     }, [])
 
-    const getCartApi = () => {
-        axios.get(`http://localhost:5000/cart`)
-            .then((res) => {
-                setCarts(res.data)
-            })
-    }
     const deleteCart = (id) => {
-        axios.delete(`http://localhost:5000/cart/${id}`)
-            .then((res) => {
-                getCartApi()
-            })
+      dispatch(deleteCartID(id))
     }
     const updateCartDataplus = (data) => {
         let obj = {
@@ -40,10 +29,7 @@ export default function AddToCart() {
             price: data.price,
             userId: data.userId,
         }
-        axios.patch(`http://localhost:5000/cart/${data._id.toString()}`, obj)
-            .then((res) => {
-                getCartApi()
-            })
+        dispatch(UpdateCartIDPlus(data,obj))
     }
     const updateCartData = (data) => {
         let obj = {
@@ -54,13 +40,7 @@ export default function AddToCart() {
             price: data.price,
             userId: data.userId,
         }
-        axios.patch(`http://localhost:5000/cart/${data._id.toString()}`, obj)
-            .then((res) => {
-                if(res.data.Number==0){
-                    deleteCart(data._id.toString())
-                }
-                getCartApi()
-            })
+       dispatch(UpdateCartID(data,obj))
     }
 
     return (
@@ -76,7 +56,6 @@ export default function AddToCart() {
             {
                 cart.length !== 0
                     ? cart.map((cartItem, index) => {
-                        debugger
                         return (
                             <div className='row' style={{ background: "white", margin: "100px", padding: "50px" }}>
                                 <div className='col-lg-4 col-md-4 col-sm-12' style={{ display: "flex", justifyContent: "space-around" }}>

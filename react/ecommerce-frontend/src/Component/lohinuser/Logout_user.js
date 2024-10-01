@@ -7,7 +7,7 @@ export default function Logout_user() {
     const navigate = useNavigate()
     const logouthandle = () => {
         localStorage.clear()
-        window.location.href = "/"
+        navigate("/")
     }
     return (
         <>
